@@ -1,0 +1,32 @@
+:root{
+  --jm-green:#157a6e;
+  --jm-green-900:#0e5a51;
+  --jm-yellow:#f4b400;
+  --jm-red:#d92332;
+
+  --surface:#f6f8fb;
+  --card:#ffffff;
+  --line:#e8edf3;
+  --ink:#1f2937;
+  --muted:#6b7280;
+
+  --bs-primary: var(--jm-green);
+  --bs-primary-rgb: 21,122,110;
+  --bs-body-bg: var(--surface);
+}
+
+.brandbar{ background: var(--jm-green); color:#fff; height:48px; }
+.brandbar .brand{ display:flex;align-items:center;gap:.6rem;font-weight:700;letter-spacing:.3px; }
+.brand-square{ width:22px;height:22px;border-radius:6px;
+  background: linear-gradient(135deg, var(--jm-yellow), var(--jm-red));
+  box-shadow: 0 6px 24px rgba(0,0,0,.12);
+}
+
+.app-sidebar{ width:250px;background:#fff;border-right:1px solid var(--line); }
+.app-content{ background: linear-gradient(180deg, #f7f9fc, #f4f7fb); }
+
+.card{ border:1px solid var(--line); border-radius:14px; }
+.kpi{ display:flex;flex-direction:column;gap:.2rem;}
+.kpi .kpi-title{ color:var(--muted); font-size:.95rem;}
+.kpi .kpi-value{ font-size:2.2rem; font-weight:800; color:var(--ink); line-height:1;}
+.kpi .kpi-foot{ color:var(--muted); font-size:.78rem;}

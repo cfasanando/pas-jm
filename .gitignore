@@ -1,0 +1,33 @@
+# ——— Laravel ———
+/vendor/
+/node_modules/
+/public/storage
+/storage/*.key
+/storage/app/*
+/storage/framework/*
+/storage/logs/*
+/bootstrap/cache/*
+.env
+.env.*
+!.env.example
+
+# IDE / SO
+/.idea/
+/.vscode/
+.DS_Store
+Thumbs.db
+
+# Build / Vite
+/public/build
+/.phpunit.result.cache
+
+# Composer & npm
+composer.lock
+package-lock.json
+npm-debug.log*
+
+# Evidencias y PDFs (si las guardas en storage o public)
+storage/app/evidencias/
+/public/evidencias/
+
+

@@ -1,0 +1,12 @@
+.app-sidebar{
+  width: 240px;
+  background: #fff;
+}
+.brand-square{
+  width:20px; height:20px; border-radius:6px;
+  background:linear-gradient(135deg,#fde047,#ef4444);
+  box-shadow:0 6px 20px rgba(0,0,0,.08);
+}
+.app-content{ background: linear-gradient(180deg, #f7f9fc, #f4f7fb); }
+.app .nav-link{ border-radius: .6rem; }
+.app .nav-link.active{ background:#0d6efd; color:#fff; }

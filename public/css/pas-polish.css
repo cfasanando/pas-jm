@@ -1,0 +1,80 @@
+:root{
+  --radius:14px;
+  --shadow-1:0 6px 18px rgba(16,24,40,.06),0 2px 6px rgba(16,24,40,.03);
+  --shadow-2:0 10px 30px rgba(16,24,40,.10);
+  --chip:#eef6f5;
+}
+
+/* ===== Brand bar usa el color primario ===== */
+.brandbar{
+  /* degradado usando el primario para mantener el estilo */
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--jm-primary) 88%, #000 12%),
+    var(--jm-primary)
+  ) !important;
+  box-shadow: var(--shadow-1);
+}
+
+/* ===== Sidebar desktop ===== */
+.app-sidebar{ width: 280px; }
+.app-sidebar .nav-link{
+  display:flex; align-items:center; gap:.55rem;
+  border-radius:10px; padding:.65rem .9rem; font-weight:600; color:#334155;
+}
+.app-sidebar .nav-link i{ opacity:.85; }
+
+/* Activo con tu primario (sin verdes fijos) */
+.app-sidebar .nav-link.active{
+  background: linear-gradient(
+    135deg,
+    var(--jm-primary),
+    color-mix(in srgb, var(--jm-primary) 85%, #fff 15%)
+  ) !important;
+  color:#fff !important;
+  box-shadow: 0 8px 20px rgba(var(--jm-primary-rgb), .25);
+}
+
+/* Offcanvas sidebar (móvil) */
+.offcanvas-sidebar{ --bs-offcanvas-width: 280px; }
+.offcanvas-sidebar .list-group-item{
+  border:0; border-radius:10px; margin:.15rem 0; font-weight:600;
+}
+.offcanvas-sidebar .list-group-item.active{
+  background: linear-gradient(
+    135deg,
+    var(--jm-primary),
+    color-mix(in srgb, var(--jm-primary) 85%, #fff 15%)
+  ) !important;
+  color:#fff !important;
+}
+
+/* Cards / superficies */
+.card{
+  border:1px solid var(--line)!important;
+  border-radius:var(--radius)!important;
+  box-shadow:var(--shadow-1);
+}
+.card:hover{ box-shadow:var(--shadow-2); transition: box-shadow .2s ease; }
+
+/* KPIs */
+.kpi-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:.75rem;}
+.kpi-icon{ width:38px;height:38px;border-radius:12px;background:var(--chip); display:grid; place-items:center; }
+.kpi-title{ color:var(--muted); font-weight:600; }
+.kpi-value{ font-size:2.4rem; font-weight:800; letter-spacing:-.5px; color:var(--ink); }
+.kpi-foot{ color:#94a3b8; font-size:.8rem; }
+
+/* Tabla */
+.table thead th{ background:#f8fafc; color:#475569; font-weight:700; border-bottom:1px solid var(--line); }
+.table> :not(caption)>*>*{ padding:.85rem .9rem; }
+
+/* Form: headers + sticky actions */
+.section-title{ font-weight:800; letter-spacing:.2px; display:flex; gap:.6rem; align-items:center; }
+.section-title .chip{ background:var(--chip); padding:.2rem .5rem; border-radius:8px; font-size:.8rem; color:#0f766e; }
+.form-control,.form-select{ border-radius:12px; }
+.form-actions{ position:sticky; bottom:0; background:#fff; border-top:1px solid var(--line);
+  padding:.75rem; border-bottom-left-radius:var(--radius); border-bottom-right-radius:var(--radius); }
+
+/* Buscador pill */
+.brandbar .input-group .form-control{ border-radius:999px; }
+.brandbar .input-group .input-group-text{ border-radius:999px 0 0 999px; }

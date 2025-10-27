@@ -1,0 +1,38 @@
+
+/* PAS-JM Bootstrap UI tweaks */
+:root {
+  --sidebar-width: 260px;
+}
+body {
+  background: #f5f7fb;
+}
+#sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  border-right: 1px solid rgba(0,0,0,.075);
+  background: #ffffff;
+}
+#sidebar .brand {
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+#content {
+  margin-left: var(--sidebar-width);
+}
+@media (max-width: 991.98px) {
+  #content { margin-left: 0; }
+}
+.nav-link.active {
+  background: #e9f5ff;
+  border-radius: .5rem;
+  color: #0d6efd !important;
+}
+.card-kpi .display-6 {
+  font-weight: 700;
+}
+.preview-box {
+  height: 520px;
+  border: 2px dashed #cfd6df;
+  border-radius: .75rem;
+  display: flex; align-items: center; justify-content: center;
+}
