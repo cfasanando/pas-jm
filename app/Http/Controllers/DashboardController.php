@@ -2,61 +2,170 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Acta;
-use App\Models\Boleta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index(Request $r)
+    /**
+     * Main dashboard for municipal KPIs.
+     */
+    public function index(Request $request)
     {
-        $day   = $r->get('day', now()->toDateString());
-        $start = now()->parse($day)->startOfDay();
-        $end   = now()->parse($day)->endOfDay();
+        // Date filters (default: last 30 days)
+        $today = now()->toDateString();
+        $from  = $request->input('from', now()->subDays(30)->toDateString());
+        $to    = $request->input('to', $today);
 
-        // Actas
-        $totalActas = Acta::whereBetween('created_at', [$start,$end])->count();
-        $actasEvid  = Acta::whereBetween('created_at', [$start,$end])->has('evidencias')->count();
-        $pctEvid    = $totalActas ? round($actasEvid * 100 / $totalActas, 1) : 0;
-        $actasHoy   = Acta::whereDate('created_at', $day)->count();
+        /* --------------------------------------------------------
+         * ACTAS
+         * ------------------------------------------------------ */
 
-        // Boletas / recaudación
-        $recaudacion  = (float) Boleta::whereBetween('created_at', [$start,$end])->sum('monto');
-        $notifTot     = Boleta::whereBetween('created_at', [$start,$end])->whereNotNull('notified_at')->count();
-        $notifFast    = Boleta::whereBetween('created_at', [$start,$end])
-                          ->whereNotNull('notified_at')
-                          ->whereRaw('TIMESTAMPDIFF(MINUTE, created_at, notified_at) < 5')->count();
-        $pctNotifFast = $notifTot ? round($notifFast*100/$notifTot,1) : 0;
+        // Total actas (all history)
+        $totalActas = DB::table('actas')->count();
 
-        // Tiempo promedio (min) Acta -> Boleta
-        $avgMin = DB::table('boletas')
-            ->join('actas','actas.id','=','boletas.acta_id')
-            ->whereBetween('boletas.created_at',[$start,$end])
-            ->avg(DB::raw('TIMESTAMPDIFF(MINUTE, actas.created_at, boletas.created_at)'));
-        $avgMin = $avgMin ? round($avgMin, 0) : 0;
+        // Actas in selected period
+        $actasPeriodo = DB::table('actas')
+            ->whereBetween('fecha', [$from, $to])
+            ->count();
 
-        /* ===== Reincidencia =====
-           % de administrados con 2+ actas en el día.
-           IMPORTANTE: hacemos select agregado para no romper con ONLY_FULL_GROUP_BY.
-        */
-        $totalAdmins = Acta::whereBetween('created_at',[$start,$end])
-            ->whereNotNull('administrado_id')
-            ->distinct('administrado_id')
-            ->count('administrado_id');
+        // Actas created today (by fecha)
+        $actasHoy = DB::table('actas')
+            ->whereDate('fecha', $today)
+            ->count();
 
-        $reincAdmins = Acta::whereBetween('created_at',[$start,$end])
-            ->whereNotNull('administrado_id')
-            ->select('administrado_id', DB::raw('COUNT(*) as c'))
-            ->groupBy('administrado_id')
-            ->having('c', '>', 1)
-            ->get()            // obtenemos filas agrupadas
-            ->count();         // y contamos cuántos administrados tienen >1
+        // Actas by status (borrador / emitida / notificada / anulada)
+        $actasPorEstado = DB::table('actas')
+            ->select('estado', DB::raw('COUNT(*) as total'))
+            ->groupBy('estado')
+            ->pluck('total', 'estado'); // ['emitida' => X, 'borrador' => Y, ...]
 
-        $pctReinc = $totalAdmins ? round($reincAdmins * 100 / $totalAdmins, 1) : 0;
+        /* --------------------------------------------------------
+         * BOLETAS / REVENUE
+         * ------------------------------------------------------ */
 
-        return view('dashboard.index', compact(
-            'day','avgMin','pctEvid','pctNotifFast','pctReinc','recaudacion','actasHoy'
-        ));
+        // Only consider "valid" fines (no anuladas) for KPIs
+        $boletasVigentes = DB::table('boletas')
+            ->whereIn('estado', ['emitida', 'notificada']);
+
+        // Total number of valid tickets (all history)
+        $totalBoletas = (clone $boletasVigentes)->count();
+
+        // Total amount of fines (emitida + notificada, no anulada)
+        $recaudacionTotal = (clone $boletasVigentes)->sum('monto');
+
+        // Tickets and amount in selected period (using acta.fecha)
+        $boletasPeriodoQuery = DB::table('boletas')
+            ->join('actas', 'boletas.acta_id', '=', 'actas.id')
+            ->whereIn('boletas.estado', ['emitida', 'notificada'])
+            ->whereBetween('actas.fecha', [$from, $to]);
+
+        $boletasPeriodo = (clone $boletasPeriodoQuery)->count();
+        $recaudacionPeriodo = (clone $boletasPeriodoQuery)->sum('boletas.monto');
+
+        // Tickets by status (emitida / notificada / anulada)
+        $boletasPorEstado = DB::table('boletas')
+            ->select('estado', DB::raw('COUNT(*) as total'))
+            ->groupBy('estado')
+            ->pluck('total', 'estado');
+
+        /* --------------------------------------------------------
+         * TOP DAYS & LOCATIONS
+         * ------------------------------------------------------ */
+
+        // Days with more actas (top 7, all history)
+        $diasTop = DB::table('actas')
+            ->select('fecha', DB::raw('COUNT(*) as total'))
+            ->groupBy('fecha')
+            ->orderByDesc('total')
+            ->limit(7)
+            ->get();
+
+        // Hot spots: locations with more actas in the selected period
+        $lugaresTop = DB::table('actas')
+            ->select('lugar', DB::raw('COUNT(*) as total'))
+            ->whereNotNull('lugar')
+            ->where('lugar', '!=', '')
+            ->whereBetween('fecha', [$from, $to])
+            ->groupBy('lugar')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get();
+
+        /* --------------------------------------------------------
+         * MONTHLY AMOUNTS (last 6 months)
+         * ------------------------------------------------------ */
+
+        $desdeMes = now()->subMonths(5)->startOfMonth()->toDateString(); // 6 months including current
+
+        $porMes = DB::table('boletas')
+            ->join('actas', 'boletas.acta_id', '=', 'actas.id')
+            ->whereIn('boletas.estado', ['emitida', 'notificada'])
+            ->where('actas.fecha', '>=', $desdeMes)
+            ->selectRaw("
+                DATE_FORMAT(actas.fecha, '%Y-%m') as periodo,
+                COUNT(DISTINCT actas.id)        as actas,
+                COUNT(boletas.id)               as boletas,
+                SUM(boletas.monto)              as monto
+            ")
+            ->groupBy('periodo')
+            ->orderBy('periodo')
+            ->get();
+
+        /* --------------------------------------------------------
+         * TOP INFRACCIONES (by tipificaciones)
+         * ------------------------------------------------------ */
+
+        $topInfracciones = DB::table('tipificaciones')
+            ->join('infracciones', 'tipificaciones.infraccion_id', '=', 'infracciones.id')
+            ->join('actas', 'tipificaciones.acta_id', '=', 'actas.id')
+            ->whereBetween('actas.fecha', [$from, $to])
+            ->select(
+                'infracciones.codigo',
+                'infracciones.descripcion',
+                DB::raw('COUNT(*) as total'),
+                DB::raw('SUM(tipificaciones.multa) as monto')
+            )
+            ->groupBy('infracciones.codigo', 'infracciones.descripcion')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get();
+
+        /* --------------------------------------------------------
+         * EXPEDIENTES
+         * ------------------------------------------------------ */
+
+        $expedientesPorEstado = DB::table('expedientes')
+            ->select('estado', DB::raw('COUNT(*) as total'))
+            ->groupBy('estado')
+            ->pluck('total', 'estado'); // ['abierto' => X, 'concluido' => Y, ...]
+
+        /* --------------------------------------------------------
+         * VIEW
+         * ------------------------------------------------------ */
+
+        return view('dashboard', [
+            'today'                => $today,
+            'from'                 => $from,
+            'to'                   => $to,
+
+            'totalActas'           => $totalActas,
+            'actasPeriodo'         => $actasPeriodo,
+            'actasHoy'             => $actasHoy,
+            'actasPorEstado'       => $actasPorEstado,
+
+            'totalBoletas'         => $totalBoletas,
+            'boletasPeriodo'       => $boletasPeriodo,
+            'recaudacionTotal'     => $recaudacionTotal,
+            'recaudacionPeriodo'   => $recaudacionPeriodo,
+            'boletasPorEstado'     => $boletasPorEstado,
+
+            'diasTop'              => $diasTop,
+            'lugaresTop'           => $lugaresTop,
+            'porMes'               => $porMes,
+
+            'topInfracciones'      => $topInfracciones,
+            'expedientesPorEstado' => $expedientesPorEstado,
+        ]);
     }
 }

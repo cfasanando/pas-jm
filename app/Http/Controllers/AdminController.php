@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{User, Infraccion};
+use App\Models\{User, Infraccion, Role};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -17,6 +17,7 @@ class AdminController extends Controller
             'infracciones' => Infraccion::orderBy('codigo')->get(),
             'series'       => DB::table('sequences')->where('key', 'like', 'boleta_%')->get(),
             'settings'     => DB::table('settings')->pluck('value','key')->toArray(),
+            'roles'        => Role::orderBy('name')->get(),
         ]);
     }
 
@@ -27,16 +28,21 @@ class AdminController extends Controller
             'name'     => 'required',
             'email'    => 'required|email|unique:users',
             'password' => 'required|min:6',
+            'role_id'  => 'required|exists:roles,id', // 👈 rol obligatorio y existente
         ]);
 
-        User::create([
-            'name' => $data['name'],
-            'email'=> $data['email'],
+        $user = User::create([
+            'name'     => $data['name'],
+            'email'    => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
 
+        // Asignar el rol seleccionado
+        $user->roles()->sync([$data['role_id']]);
+
         return redirect()->route('admin', ['tab' => 'users'])->with('ok','Usuario creado');
     }
+
 
     public function usersUpdate(Request $r, User $user)
     {

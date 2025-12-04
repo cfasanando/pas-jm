@@ -2,56 +2,83 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Acta de Fiscalización - PAS JM</title>
+  <title>Acta de Fiscalización Web · PAS Jesús María</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+        content="Sistema web en Laravel para gestionar actas de fiscalización, boletas, expedientes y evidencias del Procedimiento Administrativo Sancionador (PAS) de la Municipalidad de Jesús María." />
   <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #0f172a;
-      color: #e5e7eb;
-      display: flex;
-      min-height: 100vh;
-      align-items: center;
-      justify-content: center;
+    :root {
+      --bg: #020617;
+      --bg-elevated: #020617;
+      --bg-soft: #0b1220;
+      --border-soft: #1f2937;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --accent: #22c55e;
+      --accent-dark: #16a34a;
+      --pill-bg: #020617;
+      --pill-border: #4b5563;
     }
 
-    .card {
-      background: #020617;
-      border-radius: 16px;
-      padding: 2rem 2.5rem;
-      max-width: 720px;
-      width: 90%;
-      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.7);
-      border: 1px solid #1f2937;
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 2.5rem 1.5rem 3rem;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #020617 55%, #020617 100%);
+      color: var(--text-main);
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    .hero-card {
+      background: rgba(2, 6, 23, 0.96);
+      border-radius: 18px;
+      padding: 2rem 2.4rem 2rem;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 26px 60px -24px rgba(15, 23, 42, 0.9);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-pill {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
     }
 
     h1 {
-      margin-top: 0;
-      margin-bottom: 0.5rem;
-      font-size: 1.8rem;
+      margin: 0 0 0.5rem;
+      font-size: 2rem;
       color: #f9fafb;
     }
 
-    h2 {
-      margin-top: 0;
+    .hero-subtitle {
+      margin: 0 0 0.75rem;
       font-size: 0.95rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #9ca3af;
+      color: var(--text-muted);
     }
 
     p {
       line-height: 1.6;
-      color: #d1d5db;
-      margin-bottom: 1rem;
       font-size: 0.95rem;
+      color: #d1d5db;
+      margin: 0 0 0.75rem;
     }
 
     .badges {
-      margin: 1rem 0 1.5rem;
+      margin: 1rem 0 1.4rem;
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
@@ -59,97 +86,182 @@
 
     .badge {
       font-size: 0.75rem;
-      padding: 0.25rem 0.6rem;
+      padding: 0.25rem 0.7rem;
       border-radius: 999px;
-      border: 1px solid #4b5563;
-      background: #020617;
-      color: #e5e7eb;
+      border: 1px solid var(--pill-border);
+      background: var(--pill-bg);
+      color: var(--text-main);
+      white-space: nowrap;
     }
 
     .links {
       display: flex;
       flex-wrap: wrap;
       gap: 0.75rem;
-      margin-top: 0.5rem;
+      margin-top: 0.4rem;
     }
 
     .btn {
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      padding: 0.6rem 1rem;
+      padding: 0.65rem 1.15rem;
       border-radius: 999px;
       border: none;
       text-decoration: none;
       font-size: 0.9rem;
       cursor: pointer;
-      transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.15s ease;
+      transition: transform 0.12s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
     }
 
     .btn-primary {
-      background: #22c55e;
+      background: var(--accent);
       color: #022c22;
-      box-shadow: 0 12px 30px -12px rgba(34, 197, 94, 0.8);
       font-weight: 600;
+      box-shadow: 0 14px 35px -18px rgba(34, 197, 94, 0.9);
     }
 
     .btn-primary:hover {
+      background: var(--accent-dark);
       transform: translateY(-1px);
-      box-shadow: 0 18px 40px -18px rgba(34, 197, 94, 0.9);
-      background: #16a34a;
+      box-shadow: 0 20px 50px -22px rgba(34, 197, 94, 0.95);
     }
 
     .btn-ghost {
       background: transparent;
-      color: #e5e7eb;
-      border: 1px solid #4b5563;
+      color: var(--text-main);
+      border: 1px solid var(--pill-border);
     }
 
     .btn-ghost:hover {
       background: #020617;
       transform: translateY(-1px);
+      border-color: #6b7280;
+    }
+
+    .section {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 16px;
+      padding: 1.6rem 1.9rem 1.7rem;
+      border: 1px solid #111827;
+    }
+
+    .section h2 {
+      margin: 0 0 0.25rem;
+      font-size: 1.1rem;
+      color: #f9fafb;
+    }
+
+    .section-sub {
+      margin: 0 0 1rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .mini-card {
+      background: #020617;
+      border-radius: 12px;
+      padding: 1rem 1.05rem;
+      border: 1px solid #111827;
+      font-size: 0.9rem;
+    }
+
+    .mini-card h3 {
+      margin: 0 0 0.4rem;
+      font-size: 0.95rem;
+      color: #e5e7eb;
+    }
+
+    .mini-card p {
+      font-size: 0.87rem;
+      margin: 0;
+      color: #cbd5f5;
+    }
+
+    .mini-card ul {
+      margin: 0.4rem 0 0;
+      padding-left: 1.1rem;
+      font-size: 0.85rem;
+      color: #cbd5f5;
+    }
+
+    .mini-card ul li {
+      margin-bottom: 0.15rem;
+    }
+
+    .list-inline {
+      margin: 0.4rem 0 0;
+      padding-left: 1.1rem;
+      font-size: 0.85rem;
+      color: #cbd5f5;
     }
 
     .footer {
-      margin-top: 1.5rem;
+      margin-top: 0.75rem;
       font-size: 0.75rem;
-      color: #6b7280;
+      color: var(--text-muted);
+      text-align: left;
     }
 
-    @media (max-width: 600px) {
-      .card {
-        padding: 1.5rem;
+    @media (max-width: 720px) {
+      body {
+        padding: 1.8rem 1.1rem 2.4rem;
+      }
+      .hero-card {
+        padding: 1.6rem 1.5rem 1.8rem;
       }
       h1 {
-        font-size: 1.4rem;
+        font-size: 1.6rem;
+      }
+      .section {
+        padding: 1.4rem 1.4rem 1.5rem;
       }
     }
   </style>
 </head>
 <body>
-  <main class="card">
-    <h2>Procedimiento Administrativo Sancionador · Municipalidad de Jesús María</h2>
-    <h1>Acta de Fiscalización Web</h1>
+  <main>
+    <!-- HERO PRINCIPAL -->
+    <section class="hero-card">
+      <div class="hero-pill">
+        PROCEDIMIENTO ADMINISTRATIVO SANCIONADOR · MUNICIPALIDAD DE JESÚS MARÍA
+      </div>
+      <h1>Acta de Fiscalización Web</h1>
+      <p class="hero-subtitle">
+        Sistema web desarrollado con <strong>Laravel</strong> para gestionar el
+        <strong>Acta de Fiscalización</strong>, sus infracciones, tipificaciones, boletas,
+        evidencias y expedientes dentro del PAS de la Municipalidad de Jesús María.
+      </p>
 
-    <p>
-      Este proyecto es un sistema web desarrollado con <strong>Laravel</strong> para gestionar el
-      <strong>Acta de Fiscalización</strong> dentro del Procedimiento Administrativo Sancionador (PAS)
-      de la Municipalidad de Jesús María. Permite registrar actas, infracciones, tipificaciones, evidencias
-      y su relación con el administrado.
-    </p>
+      <div class="badges">
+        <span class="badge">Laravel · PHP 8.x</span>
+        <span class="badge">MySQL</span>
+        <span class="badge">Arquitectura MVC</span>
+        <span class="badge">Mapa de incidentes</span>
+        <span class="badge">Proyecto académico UTP</span>
+      </div>
 
-    <div class="badges">
-      <span class="badge">Laravel · PHP 8.x</span>
-      <span class="badge">MySQL</span>
-      <span class="badge">Arquitectura MVC</span>
-      <span class="badge">Proyecto académico UTP</span>
-    </div>
+      <p>
+        En este repositorio se encuentra el código fuente completo del backend, los modelos de datos
+        y la lógica de negocio implementada. Esta página de GitHub Pages funciona como
+        presentación pública del proyecto y punto de entrada para revisar el código y la documentación.
+      </p>
 
-    <p>
-      En este repositorio encontrarás el código fuente completo del backend, los modelos de datos y la lógica
-      de negocio implementada. Esta página de GitHub Pages funciona solo como una presentación pública del
-      proyecto y punto de entrada para revisar el código.
-    </p>
+      <div class="links">
+        <a
+          class="btn btn-primary"
+          href="https://github.com/cfasanando/pas-jm"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          🔍 Ver código en GitHub
+        </a>
 
     <div class="links">
       <!-- Cambia la URL del repositorio por la tuya -->
@@ -162,19 +274,119 @@
         🔍 Ver código en GitHub
       </a>
 
-      <!-- Si luego tienes un deploy real en algún hosting, pon aquí la URL -->
-      <a
-        class="btn btn-ghost"
-        href="#"
-        onclick="alert('Próximamente: demo en línea del sistema 😊'); return false;"
-      >
-        🌐 Demo en línea (próximamente)
-      </a>
-    </div>
+      <div class="footer">
+        Desarrollado como parte del curso de Análisis y Diseño / Desarrollo Web ·
+        Universidad Tecnológica del Perú (UTP).
+      </div>
+    </section>
 
-    <div class="footer">
-      Desarrollado como parte del curso de Análisis y Diseño / Desarrollo Web · Universidad Tecnológica del Perú (UTP).
-    </div>
+    <!-- TECNOLOGÍAS Y ARQUITECTURA -->
+    <section class="section">
+      <h2>Tecnologías y arquitectura</h2>
+      <p class="section-sub">
+        El sistema está organizado siguiendo el patrón MVC de Laravel, con capas bien separadas para
+        facilitar mantenimiento y pruebas.
+      </p>
+
+      <div class="cards-grid">
+        <article class="mini-card">
+          <h3>Backend</h3>
+          <p>API y lógica de negocio implementada en Laravel 11:</p>
+          <ul>
+            <li>Rutas agrupadas por módulo (actas, boletas, expedientes, administración).</li>
+            <li>Middleware de autenticación y <em>roles</em> (admin, inspector, jefe).</li>
+            <li>Validaciones de request y uso de Eloquent para el modelo de datos.</li>
+          </ul>
+        </article>
+
+        <article class="mini-card">
+          <h3>Base de datos</h3>
+          <p>MySQL con tablas normalizadas para:</p>
+          <ul>
+            <li><code>actas</code>, <code>boletas</code>, <code>tipificaciones</code>, <code>evidencias</code>.</li>
+            <li><code>expedientes</code> para el seguimiento del caso.</li>
+            <li><code>roles</code> y <code>role_user</code> para gestionar perfiles de usuario.</li>
+          </ul>
+        </article>
+
+        <article class="mini-card">
+          <h3>Interfaz de usuario</h3>
+          <p>
+            Vistas Blade con plantilla unificada, sidebar de navegación y páginas específicas para:
+          </p>
+          <ul>
+            <li>Dashboard con KPIs (actas, recaudación, días con más sanciones).</li>
+            <li>Mapa de fiscalización con geolocalización de actas.</li>
+            <li>Módulos de Actas, Boletas, Expedientes y Administración.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- CICLO DE DESARROLLO, DESPLIEGUE Y PRUEBAS -->
+    <section class="section">
+      <h2>Despliegue, pruebas y monitoreo</h2>
+      <p class="section-sub">
+        Además del desarrollo, el proyecto considera el ciclo completo: despliegue, pruebas de software y mantenimiento.
+      </p>
+
+      <div class="cards-grid">
+        <article class="mini-card">
+          <h3>Despliegue</h3>
+          <ul class="list-inline">
+            <li>Aplicación principal Laravel desplegada en entorno local/servidor PHP 8.x.</li>
+            <li>Página pública del proyecto servida con GitHub Pages desde la carpeta <code>/docs</code>.</li>
+            <li>Configuración mediante archivo <code>.env</code> para base de datos y correo.</li>
+          </ul>
+        </article>
+
+        <article class="mini-card">
+          <h3>Pruebas de software</h3>
+          <ul class="list-inline">
+            <li>Pruebas manuales de cada flujo crítico: registro de acta, emisión de boleta, expediente y mapa.</li>
+            <li>Validaciones de formularios (campos obligatorios, tipos de dato, rangos).</li>
+            <li>Uso de <code>php artisan test</code> para los tests automáticos definidos en el proyecto.</li>
+          </ul>
+        </article>
+
+        <article class="mini-card">
+          <h3>Monitoreo y calidad</h3>
+          <ul class="list-inline">
+            <li>Revisión de rendimiento, accesibilidad y buenas prácticas con
+              <strong>Chrome Lighthouse</strong> sobre las vistas principales.</li>
+            <li>Uso de logs de Laravel (<code>storage/logs/laravel.log</code>) para seguimiento de errores.</li>
+            <li>Plan de mejora continua en base a métricas de carga y feedback de usuarios.</li>
+          </ul>
+        </article>
+
+        <article class="mini-card">
+          <h3>Mantenimiento</h3>
+          <ul class="list-inline">
+            <li>Base de datos versionada con migraciones y seeds.</li>
+            <li>Documentación de módulos en el README del repositorio.</li>
+            <li>Roadmap con funcionalidades pendientes (reportes adicionales, permisos avanzados, etc.).</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- COMO EJECUTAR -->
+    <section class="section">
+      <h2>Cómo ejecutar el sistema</h2>
+      <p class="section-sub">
+        Resumen rápido de instalación. Los pasos detallados están en el README del repositorio.
+      </p>
+
+      <div class="mini-card">
+        <ul class="list-inline">
+          <li>Clonar el repositorio: <code>git clone https://github.com/cfasanando/pas-jm.git</code>.</li>
+          <li>Instalar dependencias: <code>composer install</code> y <code>npm install && npm run build</code>.</li>
+          <li>Configurar <code>.env</code> y crear la base de datos <code>pas_jm</code>.</li>
+          <li>Ejecutar migraciones: <code>php artisan migrate --seed</code> (si hay seeds definidos).</li>
+          <li>Levantar el servidor: <code>php artisan serve</code> y acceder a <code>http://localhost:8000</code>.</li>
+        </ul>
+      </div>
+    </section>
   </main>
 </body>
 </html>

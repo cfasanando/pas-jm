@@ -32,30 +32,59 @@
           <form method="post" action="{{ route('admin.users.store') }}" class="card card-body vstack gap-2">
             @csrf
             <h6>Nuevo usuario</h6>
-            <input class="form-control" name="name" placeholder="Nombre" required>
-            <input class="form-control" name="email" type="email" placeholder="Correo" required>
+
+            <input class="form-control" name="name" placeholder="Nombre" value="{{ old('name') }}" required>
+
+            <input class="form-control" name="email" type="email" placeholder="Correo" value="{{ old('email') }}" required>
+
+            {{-- Rol del usuario --}}
+            <select name="role_id" class="form-select" required>
+                <option value="">Seleccione un rol…</option>
+                @foreach($roles as $role)
+                <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
+                    {{ $role->name }} ({{ $role->slug ?? '' }})
+                </option>
+                @endforeach
+            </select>
+
             <input class="form-control" name="password" type="password" placeholder="Contraseña" required>
+
             <button class="btn btn-primary">Crear</button>
           </form>
+
         </div>
         <div class="col-md-8">
           <div class="table-responsive">
             <table class="table align-middle">
-              <thead><tr><th>Nombre</th><th>Correo</th><th class="text-end">Acciones</th></tr></thead>
+              <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol(es)</th> {{-- 👈 nueva columna --}}
+                    <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
               <tbody>
                 @foreach($users as $u)
-                <tr>
-                  <td>{{ $u->name }}</td>
-                  <td>{{ $u->email }}</td>
-                  <td class="text-end">
-                    <form class="d-inline" method="post" action="{{ route('admin.users.destroy',$u) }}">
-                      @csrf @method('DELETE')
-                      <button class="btn btn-sm btn-outline-danger">Eliminar</button>
-                    </form>
-                  </td>
-                </tr>
+                    <tr>
+                    <td>{{ $u->name }}</td>
+                    <td>{{ $u->email }}</td>
+
+                    {{-- Roles del usuario --}}
+                    <td>
+                        {{ $u->roles->pluck('name')->implode(', ') ?: '—' }}
+                    </td>
+
+                    <td class="text-end">
+                        <form class="d-inline" method="post" action="{{ route('admin.users.destroy',$u) }}">
+                        @csrf @method('DELETE')
+                        <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                        </form>
+                    </td>
+                    </tr>
                 @endforeach
               </tbody>
+
             </table>
           </div>
         </div>
@@ -191,7 +220,7 @@
       </div>
     @endif
 
-    {{-- ====== SETTINGS ====== --}}
+
 {{-- ====== SETTINGS ====== --}}
 @if($tab==='settings')
   <form method="post" action="{{ route('admin.settings.update') }}" class="card card-body vstack gap-2">
