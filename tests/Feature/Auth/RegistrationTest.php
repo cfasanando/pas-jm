@@ -6,6 +6,10 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Pruebas de registro de usuarios: verifica el renderizado del formulario de
+ * registro y el flujo de creación y redirección del nuevo usuario.
+ */
 class RegistrationTest extends TestCase
 {
     use RefreshDatabase;

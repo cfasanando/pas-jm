@@ -6,6 +6,10 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Pruebas de confirmación de contraseña: verifica el renderizado de la pantalla
+ * y la validación con contraseña correcta e incorrecta.
+ */
 class PasswordConfirmationTest extends TestCase
 {
     use RefreshDatabase;

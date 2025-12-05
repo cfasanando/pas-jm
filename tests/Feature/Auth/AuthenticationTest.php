@@ -7,6 +7,10 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Pruebas de autenticación: verifica el renderizado de la vista de inicio de sesión
+ * y la validación de credenciales correctas e incorrectas.
+ */
 class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;

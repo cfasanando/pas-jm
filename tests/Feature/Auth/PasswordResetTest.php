@@ -8,6 +8,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
+/**
+ * Pruebas de restablecimiento de contraseña: verifica el renderizado de las
+ * pantallas, el envío de la notificación y el reseteo con token válido.
+ */
 class PasswordResetTest extends TestCase
 {
     use RefreshDatabase;

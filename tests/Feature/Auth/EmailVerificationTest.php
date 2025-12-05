@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
+/**
+ * Pruebas de verificación de correo: renderiza la pantalla de verificación,
+ * valida el proceso con hash válido e inválido y comprueba la redirección.
+ */
 class EmailVerificationTest extends TestCase
 {
     use RefreshDatabase;
