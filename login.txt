@@ -1,0 +1,42 @@
+<?php
+session_start();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    $url = "http://localhost:8080/auth/login";
+
+    $data = json_encode([
+        "email" => $email,
+        "password" => $password
+    ]);
+
+    $options = [
+        'http' => [
+            'header'  => "Content-Type: application/json\r\n",
+            'method'  => 'POST',
+            'content' => $data,
+        ],
+    ];
+
+    $context = stream_context_create($options);
+    $response = file_get_contents($url, false, $context);
+    $result = json_decode($response, true);
+
+    if (isset($result['token'])) {
+        $_SESSION['token'] = $result['token'];
+        header("Location: dashboard.php");
+        exit;
+    } else {
+        $error = "Credenciales incorrectas";
+    }
+}
+?>
+
+<form method="POST">
+    <input type="email" name="email" placeholder="Correo"><br>
+    <input type="password" name="password" placeholder="Contraseña"><br>
+    <button type="submit">Ingresar</button>
+</form>
+
+<?= isset($error) ? $error : '' ?>
